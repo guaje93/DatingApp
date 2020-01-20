@@ -19,6 +19,7 @@ namespace DatinApp.api.Controllers
         {
             this._context = dataContext;
         }
+        [AllowAnonymous]
 
         [HttpGet]
         public async Task<IActionResult> Get()
@@ -27,7 +28,7 @@ namespace DatinApp.api.Controllers
             return Ok(values);
         }
 
-[AllowAnonymous]
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
