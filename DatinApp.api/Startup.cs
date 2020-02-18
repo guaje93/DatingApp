@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using DatinApp.api.Data;
 using DatinApp.api.Helpers;
 using DatinApp.api.models;
@@ -36,9 +37,16 @@ namespace DatinApp.api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DataContext>(x => x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddControllers().AddNewtonsoftJson();
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddNewtonsoftJson(opt => {
+                opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
             services.AddControllers();
             services.AddCors();
+            services.AddTransient<Seed>();
+            services.AddAutoMapper(typeof(DatingRepository));
             services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<IDatingRepository, DatingRepository>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
@@ -79,9 +87,9 @@ namespace DatinApp.api
 
             app.UseCors(p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
